@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#EA580C">
+  <meta name="description" content="Professional QR Scanner & Generator. Scan and create QR codes instantly.">
+  <meta property="og:title" content="AllScan — QR Scanner & Generator">
+  <meta property="og:description" content="Professional QR Scanner & Generator. Scan and create QR codes instantly.">
+  <title>AllScan — QR Scanner & Generator</title>
+
+  <!-- External Free-First Client Libraries -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #EA580C;
+      --primary-hover: #C2410C;
+      --primary-light: #FFEDD5;
+      --primary-subtle: #FFF7ED;
+      --bg: #FBF9F5;
+      --surface: #FFFFFF;
+      --surface-hover: #F8FAFC;
+      --border: #E5E7EB;
+      --border-focus: #F97316;
+      --text: #1F2937;
+      --text-secondary: #4B5563;
+      --text-muted: #9CA3AF;
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-light: #FEE2E2;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+      --shadow-sheet: 0 -4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #EA580C, #F97316);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 2px 4px rgba(234, 88, 12, 0.25);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #111827;
+      line-height: 1.2;
+    }
+
+    .brand-tagline {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .header-badge {
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(234, 88, 12, 0.2);
+    }
+
+    /* Main Viewports */
+    .main-content {
+      flex: 1;
+      padding: 16px 18px 84px 18px;
+    }
+
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-subtle);
+      border: 1px solid var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      outline: none;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border: 1px solid var(--primary-light);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: var(--surface-hover);
+      border-color: #D1D5DB;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+    }
+
+    .btn-ghost:hover {
+      color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    /* Scanner Viewport */
+    .scanner-mode-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .scanner-mode-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mode-chip {
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mode-chip.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+    }
+
+    .scan-mode-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .camera-live-box {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #111827;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-md);
+    }
+
+    #qr-video-region {
+      width: 100%;
+      height: 100%;
+    }
+
+    #qr-video-region video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    /* Framing Overlay */
+    .camera-frame-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reticle {
+      width: 240px;
+      height: 240px;
+      position: relative;
+    }
+
+    .corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 3px solid #F97316;
+    }
+
+    .corner-tl { top: 0; left: 0; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+    .corner-tr { top: 0; right: 0; border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+    .corner-bl { bottom: 0; left: 0; border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+    .corner-br { bottom: 0; right: 0; border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+
+    .laser-line {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #EA580C, transparent);
+      box-shadow: 0 0 8px rgba(234, 88, 12, 0.8);
+      animation: laserMove 2.2s ease-in-out infinite;
+    }
+
+    @keyframes laserMove {
+      0%, 100% { top: 10%; }
+      50% { top: 90%; }
+    }
+
+    .quality-badge {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    .quality-badge.good {
+      background: rgba(16, 185, 129, 0.85);
+      color: #FFFFFF;
+    }
+
+    .quality-badge.warning {
+      background: rgba(245, 158, 11, 0.85);
+      color: #FFFFFF;
+    }
+
+    .quality-badge.poor {
+      background: rgba(239, 68, 68, 0.85);
+      color: #FFFFFF;
+    }
+
+    .camera-live-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .shutter-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 24px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.15s;
+    }
+
+    .shutter-btn:active {
+      transform: scale(0.92);
+      background: var(--primary-light);
+    }
+
+    /* Result Bottom Sheet */
+    .result-sheet {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-top: 16px;
+      box-shadow: var(--shadow-lg);
+      border-top: 4px solid var(--primary);
+      animation: slideInUp 0.25s ease;
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pill.identified {
+      background: var(--success-light);
+      color: #065F46;
+    }
+
+    .status-pill.likely-match {
+      background: var(--warning-light);
+      color: #92400E;
+    }
+
+    .status-pill.not-enough-evidence {
+      background: #F3F4F6;
+      color: #4B5563;
+    }
+
+    .result-type-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 2px;
+      word-break: break-word;
+    }
+
+    .result-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      word-break: break-word;
+    }
+
+    .result-thumb {
+      max-width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      margin: 12px 0;
+      border: 1px solid var(--border);
+    }
+
+    .evidence-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin: 14px 0;
+      font-size: 12px;
+    }
+
+    .evidence-section h4 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .evidence-list {
+      list-style: none;
+    }
+
+    .evidence-list li {
+      margin-bottom: 4px;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .evidence-list li::before {
+      content: "•";
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .uncertainty-box {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin: 10px 0;
+      font-size: 12px;
+      color: #92400E;
+    }
+
+    .camera-permission-alert {
+      background: #FFFBEB;
+      border: 1px solid #FCD34D;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 16px;
+      text-align: left;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    }
+
+    .gen-types-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .gen-type-btn {
+      padding: 8px 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .gen-type-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-subtle);
+      color: var(--primary);
+    }
+
+    .code-preview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      margin-bottom: 16px;
+    }
+
+    .code-preview-card img, .code-preview-card canvas, .code-preview-card svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .contrast-warning-banner {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      color: #92400E;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    /* History list */
+    .history-filter-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin: 12px 0;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .history-filter-chip {
+      padding: 6px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .history-filter-chip.active {
+      background: var(--text);
+      color: #FFFFFF;
+      border-color: var(--text);
+    }
+
+    .history-item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .history-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .history-item-type {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .history-item-date {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .history-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .history-item-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    .history-item-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    /* Empty states */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .empty-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Tools Tab */
+    .tools-preview-img {
+      max-width: 100%;
+      max-height: 260px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      display: block;
+      margin: 10px auto;
+    }
+
+    /* Processing Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-sheet);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 520px;
+      margin: 0 auto;
+      height: 64px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .nav-item {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 600;
+      box-shadow: var(--shadow-lg);
+      white-space: nowrap;
+      animation: toastPop 0.2s ease;
+    }
+
+    @keyframes toastPop {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Print styles */
+    @media print {
+      .header, .bottom-nav, .scanner-mode-bar, .actions-grid, .btn {
+        display: none !important;
+      }
+      .app-shell {
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .code-preview-card {
+        border: none;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand" onclick="window.AllScan?.switchTab('scan')">
+        <div class="brand-mark">A</div>
+        <div class="brand-text">
+          <span class="brand-name">AllScan</span>
+          <span class="brand-tagline">Universal Recognition</span>
+        </div>
+      </div>
+      <div class="header-badge">Free-First</div>
+    </header>
+
+    <!-- Main View Area -->
+    <main class="main-content">
+
+      <!-- ================= 1. SCAN TAB ================= -->
+      <section id="tab-scan" class="tab-view active">
+        <!-- Engine Guidance Chips -->
+        <div class="scanner-mode-bar">
+          <button class="mode-chip active" data-mode="auto">✨ Auto Recognize</button>
+          <button class="mode-chip" data-mode="code">🏁 QR & Barcode</button>
+          <button class="mode-chip" data-mode="doc">📄 Document / Text</button>
+          <button class="mode-chip" data-mode="object">📦 Object Classifier</button>
+        </div>
+        <div class="scan-mode-hint" id="scanModeHint">
+          Auto: Scans codes, text, receipts, cards, or objects automatically
+        </div>
+
+        <!-- Camera Prompt Card (when camera inactive) -->
+        <div id="cameraPromptCard" class="card" style="text-align: center; padding: 26px 18px;">
+          <!-- Permission Denied Warning Box (shown if camera access was blocked) -->
+          <div id="cameraPermissionNotice" class="camera-permission-alert hidden">
+            <div style="font-weight:700; font-size:13px; color:#B45309; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+              <span>⚠️</span> Camera Permission Denied or Restricted
+            </div>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+              Camera access was restricted by your browser or iframe settings. You can take a photo using your device camera, pick an image/screenshot, or test the engines below.
+            </p>
+            <div style="display:flex; gap:8px;">
+              <label for="scanMobileCameraInput" class="btn btn-sm btn-primary" style="flex:1; cursor:pointer;">
+                📸 Snap Photo
+              </label>
+              <label for="scanFileInput" class="btn btn-sm btn-outline" style="flex:1; cursor:pointer;">
+                📁 Pick Image
+              </label>
+            </div>
+          </div>
+
+          <div class="card-icon" style="margin: 0 auto 14px auto; width: 54px; height: 54px; font-size: 26px;">
+            📷
+          </div>
+          <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 6px;">Universal Camera</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+            Point at any QR code, barcode, printed page, receipt, ID card, or everyday object.
+          </p>
+          <button id="btnStartCamera" class="btn btn-primary btn-block" style="font-size: 15px; padding: 14px;">
+            📷 Start Camera Scanner
+          </button>
+          <div style="margin-top: 10px; display:flex; gap:8px;">
+            <label for="scanMobileCameraInput" class="btn btn-outline" style="flex:1; cursor:pointer; font-size:13px;">
+              📸 Snap Photo
+            </label>
+            <label for="scanFileInput" class="btn btn-outline" style="flex:1; cursor:pointer; font-size:13px;">
+              📁 Upload Image
+            </label>
+            <input type="file" id="scanFileInput" accept="image/*" class="hidden">
+            <input type="file" id="scanMobileCameraInput" accept="image/*" capture="environment" class="hidden">
+          </div>
+
+          <!-- Instant Demo Samples -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border);">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">
+              Or test engines instantly with samples:
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">
+              <button type="button" class="btn btn-sm btn-outline demo-btn" data-demo="qr">📶 Wi-Fi QR</button>
+              <button type="button" class="btn btn-sm btn-outline demo-btn" data-demo="receipt">🧾 Receipt</button>
+              <button type="button" class="btn btn-sm btn-outline demo-btn" data-demo="passport">🛂 Passport MRZ</button>
+              <button type="button" class="btn btn-sm btn-outline demo-btn" data-demo="card">💳 Payment Card</button>
+              <button type="button" class="btn btn-sm btn-outline demo-btn" data-demo="product">📦 Barcode</button>
+            </div>
+          </div>
+
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 16px;">
+            🔒 All recognition runs 100% locally on your device.
+          </div>
+        </div>
+
+        <!-- Live Camera Viewport (hidden until started) -->
+        <div id="liveVideoWrapper" class="hidden">
+          <div class="camera-live-box">
+            <div id="qr-video-region"></div>
+            <!-- Framing Reticle -->
+            <div class="camera-frame-overlay">
+              <div class="reticle">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="laser-line"></div>
+              </div>
+            </div>
+            <!-- Live Quality Badge -->
+            <div id="liveQualityBadge" class="quality-badge good">Good Framing</div>
+          </div>
+
+          <!-- Live Camera Toolbar -->
+          <div id="liveCameraControls" class="camera-live-toolbar hidden">
+            <button id="btnToggleTorch" class="btn btn-sm btn-outline">🔦 Torch</button>
+            <button id="btnCaptureStill" class="shutter-btn" title="Capture & Analyze Still">📸</button>
+            <button id="btnSwitchCamera" class="btn btn-sm btn-outline">🔄 Flip</button>
+            <button id="btnCloseCamera" class="btn btn-sm btn-ghost" style="color:var(--danger);">✕ Close</button>
+          </div>
+        </div>
+
+        <!-- Result Bottom Sheet -->
+        <div id="resultSheet" class="result-sheet hidden">
+          <div class="result-header">
+            <div>
+              <span id="resultStatusBadge" class="status-pill identified">Identified</span>
+              <div id="resultTypeTag" class="result-type-tag">QR Code</div>
+            </div>
+            <button id="btnCloseResult" class="btn btn-sm btn-outline">✕</button>
+          </div>
+
+          <h3 id="resultTitle" class="result-title">Title Here</h3>
+          <p id="resultSubtitle" class="result-subtitle">Subtitle detail</p>
+
+          <img id="resultPreviewImage" class="result-thumb hidden" alt="Captured Frame Preview">
+
+          <!-- Evidence Chain Section -->
+          <div class="evidence-section">
+            <h4>Concrete Evidence</h4>
+            <ul id="resultEvidenceList" class="evidence-list">
+              <li>Evidence points</li>
+            </ul>
+          </div>
+
+          <!-- Uncertainty Notes -->
+          <div id="resultUncertaintyBox" class="uncertainty-box hidden">
+            <strong>Notes & Limitations:</strong>
+            <ul id="resultUncertaintyList" style="margin-left: 16px; margin-top: 4px;"></ul>
+          </div>
+
+          <!-- Dynamic Actions Grid -->
+          <div id="resultDynamicActions" class="actions-grid"></div>
+
+          <!-- Persistent Save Button -->
+          <div style="margin-top: 10px;">
+            <button id="btnSaveResult" class="btn btn-secondary btn-block">Save to Local History</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. CREATE TAB ================= -->
+      <section id="tab-create" class="tab-view">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">✨</div>
+            <div>
+              <div class="card-title">Code Generator</div>
+              <div class="card-subtitle">Generate QR Codes & Linear Barcodes</div>
+            </div>
+          </div>
+
+          <!-- Mode Toggle: QR vs Barcode -->
+          <div style="display:flex; gap:12px; margin-bottom:14px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="genMode" value="qr" checked> QR Code
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="genMode" value="barcode"> Linear Barcode
+            </label>
+          </div>
+
+          <!-- QR Section -->
+          <div id="qrConfigSection">
+            <div class="gen-types-grid">
+              <button class="gen-type-btn active" data-type="text">📝 Text</button>
+              <button class="gen-type-btn" data-type="url">🔗 URL</button>
+              <button class="gen-type-btn" data-type="wifi">📶 Wi-Fi</button>
+              <button class="gen-type-btn" data-type="email">📧 Email</button>
+              <button class="gen-type-btn" data-type="phone">📱 Phone</button>
+              <button class="gen-type-btn" data-type="vcard">👤 vCard</button>
+            </div>
+          </div>
+
+          <!-- Barcode Section -->
+          <div id="barcodeConfigSection" class="hidden">
+            <div class="form-group">
+              <label class="form-label">Barcode Standard</label>
+              <select id="barcodeFormatSelect" class="form-input">
+                <option value="CODE128">Code 128 (Universal)</option>
+                <option value="EAN13">EAN-13 (13 digits)</option>
+                <option value="UPC">UPC-A (12 digits)</option>
+                <option value="CODE39">Code 39</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Barcode Value</label>
+              <input type="text" id="barcodeTextInput" class="form-input" value="123456789012" placeholder="Digits or alphanumeric">
+            </div>
+          </div>
+
+          <!-- Form Fields Container -->
+          <div id="genFormInputs"></div>
+
+          <!-- Color Customizer -->
+          <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <div style="flex:1;">
+              <label class="form-label">Foreground</label>
+              <input type="color" id="genFgColor" value="#000000" style="width:100%; height:38px; border-radius:8px; border:1px solid var(--border); cursor:pointer;">
+            </div>
+            <div style="flex:1;">
+              <label class="form-label">Background</label>
+              <input type="color" id="genBgColor" value="#FFFFFF" style="width:100%; height:38px; border-radius:8px; border:1px solid var(--border); cursor:pointer;">
+            </div>
+          </div>
+
+          <!-- Contrast Warning Banner -->
+          <div id="contrastWarning" class="contrast-warning-banner hidden"></div>
+
+          <!-- Live Preview -->
+          <div class="form-label" style="margin-top:10px;">Generated Preview</div>
+          <div class="code-preview-card" id="codePreviewBox"></div>
+
+          <!-- Actions -->
+          <div style="display:flex; gap:8px;">
+            <button id="btnDownloadCode" class="btn btn-primary" style="flex:1;">⬇ Download Image</button>
+            <button id="btnPrintCode" class="btn btn-outline" style="flex:1;">🖨 Print Code</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. HISTORY TAB ================= -->
+      <section id="tab-history" class="tab-view">
+        <div class="card" style="padding:14px;">
+          <input type="search" id="historySearchInput" class="form-input" placeholder="🔍 Search scans...">
+          <div class="history-filter-bar">
+            <button class="history-filter-chip active" data-type="all">All</button>
+            <button class="history-filter-chip" data-type="code">Codes</button>
+            <button class="history-filter-chip" data-type="receipt">Receipts</button>
+            <button class="history-filter-chip" data-type="card">Cards</button>
+            <button class="history-filter-chip" data-type="passport">Passports</button>
+            <button class="history-filter-chip" data-type="product">Products</button>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Recent Scans</span>
+          <div style="display:flex; gap:6px;">
+            <button id="btnExportHistoryCsv" class="btn btn-sm btn-outline">CSV</button>
+            <button id="btnExportHistoryJson" class="btn btn-sm btn-outline">JSON</button>
+            <button id="btnClearHistory" class="btn btn-sm btn-ghost" style="color:var(--danger);">Clear</button>
+          </div>
+        </div>
+
+        <div id="historyListContainer"></div>
+      </section>
+
+      <!-- ================= 4. TOOLS TAB ================= -->
+      <section id="tab-tools" class="tab-view">
+        <!-- Tool 1: Document & Receipt OCR Enhancer -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📄</div>
+            <div>
+              <div class="card-title">Document & Receipt Enhancer</div>
+              <div class="card-subtitle">Rotate, contrast filter, and run OCR extraction</div>
+            </div>
+          </div>
+
+          <label class="btn btn-outline btn-block" style="cursor:pointer; margin-bottom:10px;">
+            📁 Upload Document / Receipt Image
+            <input type="file" id="toolsFileInput" accept="image/*" class="hidden">
+          </label>
+
+          <div id="toolsCanvasContainer"></div>
+
+          <div style="display:flex; gap:8px; margin: 10px 0;">
+            <button id="btnToolRotate" class="btn btn-sm btn-outline" style="flex:1;">🔄 Rotate 90°</button>
+            <button id="btnToolContrast" class="btn btn-sm btn-outline" style="flex:1;">✨ Enhance Contrast</button>
+            <button id="btnToolRunOCR" class="btn btn-sm btn-primary" style="flex:1;">🔤 Extract Text</button>
+          </div>
+
+          <div id="toolReceiptSummary" class="evidence-section hidden" style="margin-top:10px;"></div>
+
+          <div class="form-group" style="margin-top:10px;">
+            <label class="form-label">Extracted Text Output</label>
+            <textarea id="toolOcrOutput" class="form-input" rows="5" placeholder="OCR text will appear here..."></textarea>
+          </div>
+        </div>
+
+        <!-- Tool 2: Passport MRZ Inspector -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🛂</div>
+            <div>
+              <div class="card-title">Passport MRZ Inspector</div>
+              <div class="card-subtitle">Test ICAO 9303 checksums & privacy masking</div>
+            </div>
+          </div>
+          <button id="btnLoadSampleMrz" class="btn btn-secondary btn-block">Load Authorized Synthetic MRZ Sample</button>
+          <div id="toolMrzOutput" class="evidence-section hidden" style="margin-top:10px;"></div>
+        </div>
+      </section>
+
+      <!-- ================= 5. SETTINGS TAB ================= -->
+      <section id="tab-settings" class="tab-view">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🛡️</div>
+            <div>
+              <div class="card-title">Privacy & Security</div>
+              <div class="card-subtitle">Device-first processing guardrails</div>
+            </div>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+            <p>✅ <strong>Local Processing:</strong> Scans, codes, and documents are evaluated on-device.</p>
+            <p>✅ <strong>Automatic Card Masking:</strong> Payment card numbers are always masked (e.g. •••• 5678). CVV and PIN are strictly filtered out and never saved.</p>
+            <p>✅ <strong>Passport Masking:</strong> Document numbers are masked in scan history.</p>
+            <p>✅ <strong>Zero Tracking:</strong> No telemetry, analytics, or hidden data transmission.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🧠</div>
+            <div>
+              <div class="card-title">AI Models & Cache</div>
+              <div class="card-subtitle">Pretrained browser-compatible neural models</div>
+            </div>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">
+            <div><strong>MobileNet v2:</strong> <span id="settingsMobilenetStatus">Not Loaded (Loads on-demand)</span></div>
+            <div style="margin-top:4px;"><strong>Tesseract OCR:</strong> English model (~2MB)</div>
+          </div>
+          <button id="btnPreloadMobileNet" class="btn btn-outline btn-block">
+            📥 Preload MobileNet Model (~9MB) for Offline Use
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">⚡</div>
+            <div>
+              <div class="card-title">Performance</div>
+              <div class="card-subtitle">Budget Android & Low-RAM Optimizations</div>
+            </div>
+          </div>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; cursor:pointer;">
+            <span>Low-Power Mode (5 FPS throttled)</span>
+            <input type="checkbox" id="toggleLowPower" style="width:18px; height:18px;">
+          </label>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">💾</div>
+            <div>
+              <div class="card-title">Storage Information</div>
+              <div class="card-subtitle">Browser LocalStorage usage</div>
+            </div>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary);" id="settingsHistoryCount">
+            0 scans stored locally
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar (5 Primary Tabs) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="scan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg>
+        <span>Scan</span>
+      </button>
+      <button class="nav-item" data-tab="create">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Create</span>
+      </button>
+      <button class="nav-item" data-tab="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>History</span>
+      </button>
+      <button class="nav-item" data-tab="tools">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <span>Tools</span>
+      </button>
+      <button class="nav-item" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Offscreen element for scratch file scans -->
+  <div id="qr-scratch-reader" style="display:none;"></div>
+
+  <!-- Processing Indicator Modal -->
+  <div id="processingIndicatorModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="spinner"></div>
+      <div id="processingIndicatorText" style="font-size:14px; font-weight:600; color:var(--text);">Analyzing image...</div>
+    </div>
+  </div>
+
+  <!-- Application Script Module -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

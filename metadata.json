@@ -1,0 +1,7 @@
+{
+  "name": "AllScan — QR Scanner & Generator",
+  "description": "Professional QR Scanner & Generator. Scan and create QR codes instantly.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
